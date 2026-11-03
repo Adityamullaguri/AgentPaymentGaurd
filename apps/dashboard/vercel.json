@@ -1,0 +1,16 @@
+{
+  "rewrites": [
+    {
+      "source": "/admin-api/:path*",
+      "destination": "/api/admin/:path*"
+    },
+    {
+      "source": "/admin-events",
+      "destination": "/api/events"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
+}
