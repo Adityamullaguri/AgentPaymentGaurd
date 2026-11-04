@@ -13,9 +13,20 @@ export default async function handler(
 ): Promise<void> {
   try {
     const { url, key } = getGatewayConfig();
-    const path = request.query.path;
-    const segments = Array.isArray(path) ? path : path ? [path] : [];
     const requestUrl = request.url ?? "";
+    const pathFromUrl = requestUrl.split("?")[0]
+      .replace(/^\/api\/admin\/?/, "")
+      .split("/")
+      .filter(Boolean)
+      .map((segment) => decodeURIComponent(segment));
+    const path = request.query.path;
+    const segments = pathFromUrl.length > 0
+      ? pathFromUrl
+      : Array.isArray(path)
+        ? path
+        : path
+          ? [path]
+          : [];
     const queryIndex = requestUrl.indexOf("?");
     const query = queryIndex < 0 ? "" : requestUrl.slice(queryIndex);
     const body = await readBody(request);
