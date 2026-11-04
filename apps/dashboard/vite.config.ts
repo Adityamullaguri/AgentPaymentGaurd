@@ -40,11 +40,11 @@ export default defineConfig(({ command }) => {
     root: dashboardDir,
     server: {
       proxy: {
-        "/admin-api": {
+        "/api/admin": {
           ...proxyOptions,
-          rewrite: (path: string) => path.replace(/^\/admin-api/, "/v1/admin"),
+          rewrite: (path: string) => path.replace(/^\/api\/admin/, "/v1/admin"),
         },
-        "/admin-events": {
+        "/api/events": {
           ...proxyOptions,
           rewrite: () => "/v1/events",
         },

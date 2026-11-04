@@ -74,6 +74,8 @@ export type GatewayEvent = {
   };
 }[GatewayEventName];
 
+const ADMIN_API_BASE = "/api/admin";
+
 async function request<T>(url: string, init?: RequestInit): Promise<T> {
   let response: Response;
   try {
@@ -117,11 +119,11 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 export async function fetchSnapshot(): Promise<DashboardSnapshot> {
   const [agentsResult, approvalsResult, transactionsResult, auditResult, modeResult] =
     await Promise.all([
-      request<{ agents: Agent[] }>("/api/admin/agents"),
-      request<{ approvals: Approval[] }>("/api/admin/approvals?status=pending"),
-      request<{ transactions: Transaction[] }>("/api/admin/transactions?limit=500"),
-      request<{ audit: AuditEntry[] }>("/api/admin/audit?limit=100"),
-      request<{ mode: DashboardSnapshot["mode"] }>("/api/admin/mode"),
+      request<{ agents: Agent[] }>(`${ADMIN_API_BASE}/agents`),
+      request<{ approvals: Approval[] }>(`${ADMIN_API_BASE}/approvals?status=pending`),
+      request<{ transactions: Transaction[] }>(`${ADMIN_API_BASE}/transactions?limit=500`),
+      request<{ audit: AuditEntry[] }>(`${ADMIN_API_BASE}/audit?limit=100`),
+      request<{ mode: DashboardSnapshot["mode"] }>(`${ADMIN_API_BASE}/mode`),
     ]);
   return {
     mode: modeResult.mode,
@@ -137,7 +139,7 @@ export async function adminAction(
   method = "POST",
   body?: unknown,
 ): Promise<void> {
-  await request(`/api/admin${path.replace(/^\/admin-api/, "")}`, {
+  await request(path, {
     method,
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });

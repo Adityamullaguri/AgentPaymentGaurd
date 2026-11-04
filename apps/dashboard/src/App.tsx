@@ -847,7 +847,7 @@ export default function App(): JSX.Element {
     setDemoStopping(false);
     dispatch({ type: "error", message: null });
     try {
-      await adminAction(`/admin-api/demo/${encodeURIComponent(demoScenario)}`);
+      await adminAction(`/api/admin/demo/${encodeURIComponent(demoScenario)}`);
     } catch (error) {
       setDemoBusy(false);
       setDemoStopping(false);
@@ -862,7 +862,7 @@ export default function App(): JSX.Element {
     setDemoStopping(true);
     dispatch({ type: "error", message: null });
     try {
-      await adminAction("/admin-api/demo/stop");
+      await adminAction("/api/admin/demo/stop");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not stop the demo";
@@ -888,7 +888,7 @@ export default function App(): JSX.Element {
     }
     setResetBusy(true);
     try {
-      await adminAction("/admin-api/reset");
+      await adminAction("/api/admin/reset");
       await refresh();
     } catch (error) {
       const message =
@@ -913,7 +913,7 @@ export default function App(): JSX.Element {
     try {
       const note = approvalNotes[approvalId]?.trim();
       await adminAction(
-        `/admin-api/approvals/${encodeURIComponent(approvalId)}/${decision}`,
+        `/api/admin/approvals/${encodeURIComponent(approvalId)}/${decision}`,
         "POST",
         note ? { note } : {},
       );
@@ -937,7 +937,7 @@ export default function App(): JSX.Element {
     setFreezeBusy(true);
     try {
       const action = agent.frozen ? "unfreeze" : "freeze";
-      await adminAction(`/admin-api/agents/${encodeURIComponent(agent.id)}/${action}`, "POST", {
+      await adminAction(`/api/admin/agents/${encodeURIComponent(agent.id)}/${action}`, "POST", {
         reason: "Frozen by dashboard operator",
       });
       await refresh();
