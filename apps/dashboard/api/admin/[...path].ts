@@ -31,10 +31,33 @@ export default async function handler(
     const query = queryIndex < 0
       ? ""
       : requestUrl.slice(queryIndex);
-    const upstreamUrl = `${gatewayUrl}/v1/admin/${segments
+    let body = await readRequestBody(request);
+    let upstreamPath = segments
       .map((segment) => encodeURIComponent(segment))
-      .join("/")}${query}`;
-    const body = await readRequestBody(request);
+      .join("/");
+    if (request.method === "POST" && upstreamPath === "approvals" && body) {
+      try {
+        const payload: unknown = JSON.parse(body);
+        if (
+          typeof payload === "object" &&
+          payload !== null &&
+          "approval_id" in payload &&
+          typeof payload.approval_id === "string" &&
+          "action" in payload &&
+          typeof payload.action === "string" &&
+          ["approve", "reject", "decision"].includes(payload.action)
+        ) {
+          upstreamPath = `approvals/${encodeURIComponent(payload.approval_id)}/${payload.action}`;
+          const forwardedBody = { ...payload };
+          delete forwardedBody.approval_id;
+          delete forwardedBody.action;
+          body = JSON.stringify(forwardedBody);
+        }
+      } catch {
+        // Let the gateway return its standard invalid-request response.
+      }
+    }
+    const upstreamUrl = `${gatewayUrl}/v1/admin/${upstreamPath}${query}`;
     const upstream = await fetch(upstreamUrl, {
       method: request.method ?? "GET",
       headers: {

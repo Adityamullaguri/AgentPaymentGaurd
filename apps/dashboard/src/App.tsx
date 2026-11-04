@@ -913,7 +913,7 @@ export default function App(): JSX.Element {
     try {
       const note = approvalNotes[approvalId]?.trim();
       await adminAction(
-        "/api/admin/approval",
+        "/api/admin/approvals",
         "POST",
         {
           approval_id: approvalId,
