@@ -14,19 +14,19 @@ export default async function handler(
   try {
     const { url, key } = getGatewayConfig();
     const requestUrl = request.url ?? "";
-    const pathFromUrl = requestUrl.split("?")[0]
+    const requestPath = requestUrl.startsWith("http://") || requestUrl.startsWith("https://")
+      ? new URL(requestUrl).pathname
+      : requestUrl.split("?")[0];
+    const pathFromUrl = requestPath
       .replace(/^\/api\/admin\/?/, "")
       .split("/")
       .filter(Boolean)
       .map((segment) => decodeURIComponent(segment));
     const path = request.query.path;
+    const queryPath = Array.isArray(path) ? path : path ? [path] : [];
     const segments = pathFromUrl.length > 0
       ? pathFromUrl
-      : Array.isArray(path)
-        ? path
-        : path
-          ? [path]
-          : [];
+      : queryPath.flatMap((segment) => segment.split("/").filter(Boolean).map(decodeURIComponent));
     const queryIndex = requestUrl.indexOf("?");
     const query = queryIndex < 0 ? "" : requestUrl.slice(queryIndex);
     let body = await readBody(request);
