@@ -941,7 +941,9 @@ export default function App(): JSX.Element {
     setFreezeBusy(true);
     try {
       const action = agent.frozen ? "unfreeze" : "freeze";
-      await adminAction(`/api/admin/agents/${encodeURIComponent(agent.id)}/${action}`, "POST", {
+      await adminAction("/api/admin/agents", "POST", {
+        agent_id: agent.id,
+        action,
         reason: "Frozen by dashboard operator",
       });
       await refresh();

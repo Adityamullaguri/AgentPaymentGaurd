@@ -57,6 +57,28 @@ export default async function handler(
         // Let the gateway return its standard invalid-request response.
       }
     }
+    if (request.method === "POST" && upstreamPath === "agents" && body) {
+      try {
+        const payload: unknown = JSON.parse(body);
+        if (
+          typeof payload === "object" &&
+          payload !== null &&
+          "agent_id" in payload &&
+          typeof payload.agent_id === "string" &&
+          "action" in payload &&
+          typeof payload.action === "string" &&
+          ["freeze", "unfreeze"].includes(payload.action)
+        ) {
+          upstreamPath = `agents/${encodeURIComponent(payload.agent_id)}/${payload.action}`;
+          const forwardedBody = { ...payload };
+          delete forwardedBody.agent_id;
+          delete forwardedBody.action;
+          body = JSON.stringify(forwardedBody);
+        }
+      } catch {
+        // Let the gateway return its standard invalid-request response.
+      }
+    }
     const upstreamUrl = `${gatewayUrl}/v1/admin/${upstreamPath}${query}`;
     const upstream = await fetch(upstreamUrl, {
       method: request.method ?? "GET",
