@@ -13,8 +13,33 @@ export default async function handler(
 ): Promise<void> {
   try {
     const { gatewayUrl, adminKey } = gatewayConfiguration();
-    const id = request.query.id;
-    const action = request.query.action;
+    const body = await readRequestBody(request);
+    let payload: unknown;
+    try {
+      payload = body ? JSON.parse(body) : undefined;
+    } catch {
+      response.status(400).json({
+        error: {
+          code: "INVALID_REQUEST",
+          message: "Approval request body must be valid JSON",
+        },
+      });
+      return;
+    }
+    const id =
+      typeof payload === "object" &&
+      payload !== null &&
+      "approval_id" in payload &&
+      typeof payload.approval_id === "string"
+        ? payload.approval_id
+        : undefined;
+    const action =
+      typeof payload === "object" &&
+      payload !== null &&
+      "action" in payload &&
+      typeof payload.action === "string"
+        ? payload.action
+        : undefined;
     if (
       typeof id !== "string" ||
       typeof action !== "string" ||
@@ -29,7 +54,6 @@ export default async function handler(
       return;
     }
 
-    const body = await readRequestBody(request);
     const upstream = await fetch(
       `${gatewayUrl}/v1/admin/approvals/${encodeURIComponent(id)}/${action}`,
       {

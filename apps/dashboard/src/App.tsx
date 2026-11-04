@@ -913,9 +913,13 @@ export default function App(): JSX.Element {
     try {
       const note = approvalNotes[approvalId]?.trim();
       await adminAction(
-        `/api/admin/approval?id=${encodeURIComponent(approvalId)}&action=${decision}`,
+        "/api/admin/approval",
         "POST",
-        note ? { note } : {},
+        {
+          approval_id: approvalId,
+          action: decision,
+          ...(note ? { note } : {}),
+        },
       );
       await refresh();
     } catch (error) {
