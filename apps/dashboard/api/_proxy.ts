@@ -40,6 +40,10 @@ export async function readRequestBody(
 export function sendProxyError(response: VercelResponse, error: unknown): void {
   const message =
     error instanceof Error ? error.message : "The gateway proxy failed";
+  console.error("Dashboard gateway proxy failed", {
+    errorType: error instanceof Error ? error.name : "UnknownError",
+    message,
+  });
   response.status(502).json({
     error: {
       code: "GATEWAY_PROXY_ERROR",

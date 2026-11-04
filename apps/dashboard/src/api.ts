@@ -86,7 +86,11 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
         ...init?.headers,
       },
     });
-  } catch {
+  } catch (error) {
+    console.error("Dashboard request failed before receiving a response", {
+      url,
+      error,
+    });
     throw new Error("Cannot reach the gateway. Check that it is running, then retry.");
   }
   const responseText = await response.text();
@@ -97,6 +101,11 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
     body = undefined;
   }
   if (!response.ok) {
+    console.error("Dashboard request returned an error", {
+      url,
+      status: response.status,
+      body,
+    });
     const message =
       typeof body === "object" &&
       body !== null &&

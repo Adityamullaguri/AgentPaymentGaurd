@@ -1095,6 +1095,7 @@ export default function App(): JSX.Element {
                       <p>{agent.frozen_reason ?? "Spending requests are being evaluated against policy."}</p>
                     </div>
                     <button
+                      type="button"
                       className={`button ${agent.frozen ? "secondary" : "primary"}`}
                       onClick={() => void toggleFreeze()}
                       disabled={freezeBusy}
@@ -1194,6 +1195,7 @@ export default function App(): JSX.Element {
                           {approvalSecondsLeft(approval, clock)}s left
                         </span>
                         <button
+                          type="button"
                           className="button primary"
                           onClick={() => void decideApproval(approval.approval_id, "approve")}
                           disabled={resolvingApprovals.has(approval.approval_id)}
@@ -1202,6 +1204,7 @@ export default function App(): JSX.Element {
                           {resolvingApprovals.has(approval.approval_id) ? <><span className="micro-spinner" aria-hidden="true" />Working…</> : "Approve"}
                         </button>
                         <button
+                          type="button"
                           className="button secondary"
                           onClick={() => void decideApproval(approval.approval_id, "reject")}
                           disabled={resolvingApprovals.has(approval.approval_id)}

@@ -31,6 +31,7 @@ export default async function handler(
     const query = queryIndex < 0
       ? ""
       : requestUrl.slice(queryIndex);
+    let upstreamQuery = query;
     let body = await readRequestBody(request);
     let upstreamMethod = request.method ?? "GET";
     let upstreamPath = segments
@@ -51,6 +52,7 @@ export default async function handler(
       upstreamPath = `approvals/${encodeURIComponent(queryApprovalId)}/${queryAction}`;
       const note = requestQuery.get("note");
       body = note ? JSON.stringify({ note }) : "{}";
+      upstreamQuery = "";
     }
     if (
       request.method === "GET" &&
@@ -63,6 +65,7 @@ export default async function handler(
       upstreamPath = `agents/${encodeURIComponent(queryAgentId)}/${queryAction}`;
       const reason = requestQuery.get("reason");
       body = reason ? JSON.stringify({ reason }) : "{}";
+      upstreamQuery = "";
     }
     if (request.method === "POST" && upstreamPath === "approvals" && body) {
       try {
@@ -108,7 +111,7 @@ export default async function handler(
         // Let the gateway return its standard invalid-request response.
       }
     }
-    const upstreamUrl = `${gatewayUrl}/v1/admin/${upstreamPath}${query}`;
+    const upstreamUrl = `${gatewayUrl}/v1/admin/${upstreamPath}${upstreamQuery}`;
     const upstream = await fetch(upstreamUrl, {
       method: upstreamMethod,
       headers: {
