@@ -847,7 +847,10 @@ export default function App(): JSX.Element {
     setDemoStopping(false);
     dispatch({ type: "error", message: null });
     try {
-      await adminAction(`/api/admin/demo/${encodeURIComponent(demoScenario)}`);
+      await adminAction(
+        `/api/admin/demo?scenario=${encodeURIComponent(demoScenario)}`,
+        "GET",
+      );
     } catch (error) {
       setDemoBusy(false);
       setDemoStopping(false);
@@ -862,7 +865,7 @@ export default function App(): JSX.Element {
     setDemoStopping(true);
     dispatch({ type: "error", message: null });
     try {
-      await adminAction("/api/admin/demo/stop");
+      await adminAction("/api/admin/demo/stop", "GET");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not stop the demo";

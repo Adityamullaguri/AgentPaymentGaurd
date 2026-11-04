@@ -39,6 +39,7 @@ export default async function handler(
       .join("/");
     const requestQuery = new URLSearchParams(query);
     const queryAction = requestQuery.get("action");
+    const queryScenario = requestQuery.get("scenario");
     const queryApprovalId = requestQuery.get("approval_id");
     const queryAgentId = requestQuery.get("agent_id");
     if (
@@ -65,6 +66,19 @@ export default async function handler(
       upstreamPath = `agents/${encodeURIComponent(queryAgentId)}/${queryAction}`;
       const reason = requestQuery.get("reason");
       body = reason ? JSON.stringify({ reason }) : "{}";
+      upstreamQuery = "";
+    }
+    if (
+      request.method === "GET" &&
+      upstreamPath === "demo" &&
+      queryScenario
+    ) {
+      upstreamMethod = "POST";
+      upstreamPath = `demo/${encodeURIComponent(queryScenario)}`;
+      upstreamQuery = "";
+    }
+    if (request.method === "GET" && upstreamPath === "demo/stop") {
+      upstreamMethod = "POST";
       upstreamQuery = "";
     }
     if (request.method === "POST" && upstreamPath === "approvals" && body) {
