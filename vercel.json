@@ -12,7 +12,7 @@
       "destination": "/api/events"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api(?:/|$)).*)",
       "destination": "/index.html"
     }
   ]
