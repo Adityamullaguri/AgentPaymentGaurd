@@ -117,11 +117,11 @@ async function request<T>(url: string, init?: RequestInit): Promise<T> {
 export async function fetchSnapshot(): Promise<DashboardSnapshot> {
   const [agentsResult, approvalsResult, transactionsResult, auditResult, modeResult] =
     await Promise.all([
-      request<{ agents: Agent[] }>("/admin-api/agents"),
-      request<{ approvals: Approval[] }>("/admin-api/approvals?status=pending"),
-      request<{ transactions: Transaction[] }>("/admin-api/transactions?limit=500"),
-      request<{ audit: AuditEntry[] }>("/admin-api/audit?limit=100"),
-      request<{ mode: DashboardSnapshot["mode"] }>("/admin-api/mode"),
+      request<{ agents: Agent[] }>("/api/admin/agents"),
+      request<{ approvals: Approval[] }>("/api/admin/approvals?status=pending"),
+      request<{ transactions: Transaction[] }>("/api/admin/transactions?limit=500"),
+      request<{ audit: AuditEntry[] }>("/api/admin/audit?limit=100"),
+      request<{ mode: DashboardSnapshot["mode"] }>("/api/admin/mode"),
     ]);
   return {
     mode: modeResult.mode,
@@ -137,7 +137,7 @@ export async function adminAction(
   method = "POST",
   body?: unknown,
 ): Promise<void> {
-  await request(path, {
+  await request(`/api/admin${path.replace(/^\/admin-api/, "")}`, {
     method,
     ...(body === undefined ? {} : { body: JSON.stringify(body) }),
   });
@@ -147,7 +147,7 @@ export function connectEvents(
   onEvent: (event: GatewayEvent) => void,
   onStatus: (connected: boolean) => void,
 ): EventSource {
-  const source = new EventSource("/admin-events");
+  const source = new EventSource("/api/events");
   source.onopen = () => onStatus(true);
   source.onerror = () => onStatus(false);
   const names: GatewayEventName[] = [
