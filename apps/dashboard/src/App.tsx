@@ -865,7 +865,7 @@ export default function App(): JSX.Element {
     setDemoStopping(true);
     dispatch({ type: "error", message: null });
     try {
-      await adminAction("/api/admin/demo/stop", "GET");
+      await adminAction("/api/admin/demo?scenario=stop", "GET");
     } catch (error) {
       const message =
         error instanceof Error ? error.message : "Could not stop the demo";
