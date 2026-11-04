@@ -913,13 +913,8 @@ export default function App(): JSX.Element {
     try {
       const note = approvalNotes[approvalId]?.trim();
       await adminAction(
-        "/api/admin/approvals",
-        "POST",
-        {
-          approval_id: approvalId,
-          action: decision,
-          ...(note ? { note } : {}),
-        },
+        `/api/admin/approvals?approval_id=${encodeURIComponent(approvalId)}&action=${decision}${note ? `&note=${encodeURIComponent(note)}` : ""}`,
+        "GET",
       );
       await refresh();
     } catch (error) {
@@ -941,11 +936,10 @@ export default function App(): JSX.Element {
     setFreezeBusy(true);
     try {
       const action = agent.frozen ? "unfreeze" : "freeze";
-      await adminAction("/api/admin/agents", "POST", {
-        agent_id: agent.id,
-        action,
-        reason: "Frozen by dashboard operator",
-      });
+      await adminAction(
+        `/api/admin/agents?agent_id=${encodeURIComponent(agent.id)}&action=${action}&reason=${encodeURIComponent("Frozen by dashboard operator")}`,
+        "GET",
+      );
       await refresh();
     } catch (error) {
       dispatch({

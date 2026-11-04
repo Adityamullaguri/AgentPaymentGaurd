@@ -32,9 +32,38 @@ export default async function handler(
       ? ""
       : requestUrl.slice(queryIndex);
     let body = await readRequestBody(request);
+    let upstreamMethod = request.method ?? "GET";
     let upstreamPath = segments
       .map((segment) => encodeURIComponent(segment))
       .join("/");
+    const requestQuery = new URLSearchParams(query);
+    const queryAction = requestQuery.get("action");
+    const queryApprovalId = requestQuery.get("approval_id");
+    const queryAgentId = requestQuery.get("agent_id");
+    if (
+      request.method === "GET" &&
+      upstreamPath === "approvals" &&
+      queryApprovalId &&
+      queryAction &&
+      ["approve", "reject", "decision"].includes(queryAction)
+    ) {
+      upstreamMethod = "POST";
+      upstreamPath = `approvals/${encodeURIComponent(queryApprovalId)}/${queryAction}`;
+      const note = requestQuery.get("note");
+      body = note ? JSON.stringify({ note }) : "{}";
+    }
+    if (
+      request.method === "GET" &&
+      upstreamPath === "agents" &&
+      queryAgentId &&
+      queryAction &&
+      ["freeze", "unfreeze"].includes(queryAction)
+    ) {
+      upstreamMethod = "POST";
+      upstreamPath = `agents/${encodeURIComponent(queryAgentId)}/${queryAction}`;
+      const reason = requestQuery.get("reason");
+      body = reason ? JSON.stringify({ reason }) : "{}";
+    }
     if (request.method === "POST" && upstreamPath === "approvals" && body) {
       try {
         const payload: unknown = JSON.parse(body);
@@ -81,7 +110,7 @@ export default async function handler(
     }
     const upstreamUrl = `${gatewayUrl}/v1/admin/${upstreamPath}${query}`;
     const upstream = await fetch(upstreamUrl, {
-      method: request.method ?? "GET",
+      method: upstreamMethod,
       headers: {
         "X-Admin-Key": adminKey,
         ...(body === undefined ? {} : { "Content-Type": "application/json" }),
