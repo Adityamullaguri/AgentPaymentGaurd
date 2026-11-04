@@ -13,9 +13,20 @@ export default async function handler(
 ): Promise<void> {
   try {
     const { gatewayUrl, adminKey } = gatewayConfiguration();
-    const path = request.query.path;
-    const segments = Array.isArray(path) ? path : path ? [path] : [];
     const requestUrl = request.url ?? "";
+    const path = request.query.path;
+    const queryPath = Array.isArray(path) ? path : path ? [path] : [];
+    const pathname = requestUrl.split("?")[0] ?? "";
+    const pathIndex = pathname.indexOf("/api/admin/");
+    const urlPath =
+      pathIndex < 0
+        ? []
+        : pathname
+            .slice(pathIndex + "/api/admin/".length)
+            .split("/")
+            .filter(Boolean)
+            .map((segment) => decodeURIComponent(segment));
+    const segments = urlPath.length > queryPath.length ? urlPath : queryPath;
     const queryIndex = requestUrl.indexOf("?");
     const query = queryIndex < 0
       ? ""
